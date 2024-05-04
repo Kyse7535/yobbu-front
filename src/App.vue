@@ -4,9 +4,17 @@ import Header from "./components/Header.vue";
 </script>
 
 <template>
-  <v-app>
-    <Header />
-    <RouterView></RouterView>
+  <v-app class="w-100">
+    <v-container fluid>
+      <v-row>
+        <v-col><Header /></v-col>
+      </v-row>
+      <v-row>
+        <v-col>
+          <RouterView></RouterView>
+        </v-col>
+      </v-row>
+    </v-container>
   </v-app>
 </template>
 
