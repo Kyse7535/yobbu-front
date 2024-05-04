@@ -2,7 +2,14 @@
   <h2>TripList</h2>
   <h2 v-if="trips.length === 0">No trips found</h2>
   <v-list lines="three" v-else>
-    <v-list-item v-for="trip in trips" :key="trip.id" elevation="3">
+    <v-list-item
+      class="trip_item"
+      @click="goToDetails(trip.id)"
+      v-for="trip in trips"
+      :key="trip.id"
+      :id="trip.id"
+      elevation="3"
+    >
       <template v-slot:title>
         <h3>{{ trip.city_departure }} ----- > {{ trip.city_arrival }}</h3>
         <h4>
@@ -14,28 +21,33 @@
   </v-list>
 </template>
 <script setup>
-import { onMounted, ref, watch } from "vue";
-import { useStore } from "../store/index";
+import { onMounted, ref, watch, defineProps, defineEmits } from "vue";
+
+const props = defineProps(["trips"]);
+const emit = defineEmits(["go-to-details"]);
 const trips = ref([]);
-const store = useStore();
+
+function goToDetails(trip_id) {
+  emit("go-to-details", trip_id);
+}
 
 watch(
-  () => store.getTrips,
-  () => {
-    trips.value = store.getTrips;
+  () => props.trips,
+  (val) => {
+    trips.value = val;
   }
 );
 
 onMounted(async () => {
-  await store.fetchTrips({
-    date_departure: "",
-    date_arrival: "",
-    city_departure: "",
-    city_arrival: "",
-    country_departure: "",
-    country_arrival: "",
-  });
-  trips.value = [...store.getTrips];
+  if (props.trips) {
+    trips.value = props.trips;
+  } else {
+    trips.value = [];
+  }
 });
 </script>
-<style></style>
+<style scoped>
+.trip_item {
+  cursor: pointer;
+}
+</style>

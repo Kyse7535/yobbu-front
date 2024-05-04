@@ -66,8 +66,9 @@
   </v-form>
 </template>
 <script setup>
-import { onMounted, ref } from "vue";
+import { onMounted, ref, defineEmits } from "vue";
 import { useStore } from "../store/index";
+const emit = defineEmits(["result-search"]);
 const date_departure = ref(""),
   date_arrival = ref(""),
   city_departure = ref(""),
@@ -85,6 +86,7 @@ async function searchTrips() {
     country_departure: country_arrival.value,
     country_arrival: country_arrival.value,
   });
+  emit("result-search");
 }
 </script>
 <style></style>
