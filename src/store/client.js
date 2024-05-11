@@ -1,6 +1,6 @@
-import { defineStore } from "pinia";
+import { defineStore, acceptHMRUpdate } from "pinia";
 import axios from "axios";
-import useHandlerMessage from "../composables/HandlerMessage";
+import useHandlerMessage from "@/composables/HandlerMessage";
 
 // Your code using axios goes here
 
@@ -11,11 +11,13 @@ export const useStore = defineStore("trip", {
     trips: [],
     provider: {},
     provider_trips: [],
+    panier: [],
   }),
   getters: {
     getTrips: (state) => state.trips,
     getProviderDetails: (state) => state.provider,
     getProviderTrips: (state) => state.provider_trips,
+    getPanier: (state) => state.panier,
   },
   actions: {
     async fetchTrips({
@@ -111,5 +113,23 @@ export const useStore = defineStore("trip", {
         );
       }
     },
+    addCommandToPanier(order) {
+      const index = this.panier.findIndex((o) => o.id === order.id);
+      if (index > -1) {
+        this.panier[index] = order;
+      } else {
+        this.panier.push(order);
+      }
+    },
+    removeCommandToPanier(order_id) {
+      const index = this.panier.findIndex((o) => o.id === order_id);
+      if (index > -1) {
+        this.panier.splice(index, 1);
+      }
+    },
   },
 });
+
+if (import.meta.hot) {
+  import.meta.hot.accept(acceptHMRUpdate(useStore, import.meta.hot));
+}

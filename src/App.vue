@@ -1,16 +1,35 @@
 <script setup>
+import { onBeforeMount } from "vue";
 import { RouterView } from "vue-router";
 import Header from "./components/Header.vue";
+import { useRoute, useRouter } from "vue-router";
+import { provide } from "vue";
+import useHandlerMessage from "./composables/HandlerMessage";
+const route = useRoute();
+const router = useRouter();
+const handlerMessage = useHandlerMessage();
+const isProvider = true;
+provide("isProvider", isProvider);
+provide("route", route);
+provide("router", router);
+provide("handlerMessage", handlerMessage);
+
+onBeforeMount(() => {
+  let name = isProvider ? "homeProvider" : "homeClient";
+  router.push({
+    name,
+  });
+});
 </script>
 
 <template>
-  <v-app class="w-100">
-    <v-container fluid>
+  <v-app class="ma-0">
+    <v-container fluid class="pa-0">
       <v-row>
         <v-col><Header /></v-col>
       </v-row>
-      <v-row>
-        <v-col>
+      <v-row class="pa-0">
+        <v-col class="pa-5">
           <RouterView></RouterView>
         </v-col>
       </v-row>

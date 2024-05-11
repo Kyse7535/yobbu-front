@@ -67,7 +67,7 @@
 </template>
 <script setup>
 import { onMounted, ref, defineEmits } from "vue";
-import { useStore } from "../store/index";
+import useClientStoreComposable from "@/composables/clientStoreComposable";
 const emit = defineEmits(["result-search"]);
 const date_departure = ref(""),
   date_arrival = ref(""),
@@ -75,7 +75,7 @@ const date_departure = ref(""),
   city_arrival = ref(""),
   country_departure = ref(""),
   country_arrival = ref(""),
-  store = useStore();
+  store = useClientStoreComposable();
 
 async function searchTrips() {
   await store.fetchTrips({

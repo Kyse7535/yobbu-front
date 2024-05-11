@@ -11,10 +11,13 @@
       <p>{{ trip.city_departure }} ----- > {{ trip.city_arrival }}</p>
     </v-col>
     <v-col cols="12">{{ trip.description }}</v-col>
-    <v-col cols="12"><v-btn>Commander</v-btn></v-col>
+    <v-col cols="12" @click="goToCommand(trip.id)"
+      ><v-btn>Commander</v-btn></v-col
+    >
 
-    <v-col cols="12" id="provider_avatar" class="cursor-pointer"
+    <v-col cols="12" class="cursor-pointer"
       ><v-avatar
+        id="provider_avatar"
         color="surface-variant"
         text="lorem"
         @click="goToProviderDetails"
@@ -23,27 +26,25 @@
   </v-row>
 </template>
 <script setup>
-import { computed, onMounted, ref, watch } from "vue";
-import { useRouter, useRoute } from "vue-router";
-import { useStore } from "../store/index";
-import useHandlerMessage from "../composables/HandlerMessage";
+import { computed, inject, onMounted, ref, watch } from "vue";
+import useClientStoreComposable from "@/composables/clientStoreComposable";
 
 const loadingData = ref(false);
-const route = useRoute();
-const router = useRouter();
-const store = useStore();
-const handlerMessage = useHandlerMessage();
+const route = inject("route");
+const router = inject("router");
+const store = useClientStoreComposable();
+const handlerMessage = inject("handlerMessage");
 
 const trip = ref(null);
 
 async function searchTripById(id) {
   loadingData.value = true;
-  let result = store.getTrips.find((trip) => trip.id === id) || {};
+  let result = store.getTrips().find((trip) => trip.id === id) || {};
   if (result) {
     trip.value = { ...result };
   } else {
     await store.fetchTripById(id);
-    result = store.getTrips.find((trip) => trip.id === id);
+    result = store.getTrips().find((trip) => trip.id === id);
     if (result) {
       loadingData.value = false;
       trip.value = { ...result };
@@ -65,13 +66,20 @@ async function goToProviderDetails() {
   loadingData.value = true;
   let link_to_provider = trip.value.links.find((l) => l.rel === "provider");
   await store.fetchProviderDetails(link_to_provider.href);
-  let provider_id = store.getProviderDetails && store.getProviderDetails.id;
+  let provider_id = store.getProviderDetails() && store.getProviderDetails().id;
   if (provider_id) {
     router.push({
-      path: "/provider",
+      name: "provider",
       query: { provider_id },
     });
   }
+}
+
+function goToCommand(trip_id) {
+  router.push({
+    name: "order",
+    query: { trip_id },
+  });
 }
 
 watch(

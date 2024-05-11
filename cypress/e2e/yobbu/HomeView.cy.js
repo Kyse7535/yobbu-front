@@ -14,7 +14,7 @@ describe("Home page", () => {
     cy.contains("No trips found");
   });
 
-  it.only("Should test correctly access to trip details and provider details", () => {
+  it("Should test correctly access to trip details and provider details", () => {
     cy.visit("http://localhost:5173");
     cy.contains("Paris");
     cy.contains("Madrid");
@@ -23,5 +23,8 @@ describe("Home page", () => {
     cy.get("#provider_avatar").click();
     cy.contains("provider details");
     cy.contains("provider@example.com");
+    cy.contains("Madrid").should("not.exist");
+    cy.get("#fetch-trip-provider").click();
+    cy.contains("Madrid");
   });
 });

@@ -5,7 +5,12 @@
     <v-col cols="12">{{ provider.email }}</v-col>
     <v-col cols="12">{{ provider.siret }}</v-col>
     <v-col cols="12"
-      ><p class="cursor-pointer" color="primary" @click="fetchProviderTrips">
+      ><p
+        class="cursor-pointer"
+        id="fetch-trip-provider"
+        color="primary"
+        @click="fetchProviderTrips"
+      >
         fetch provider trips
       </p></v-col
     >
@@ -20,10 +25,10 @@
 </template>
 <script setup>
 import { onMounted, ref, watch } from "vue";
-import { useStore } from "../store";
-import TripList from "../components/TripList.vue";
+import useClientStoreComposable from "@/composables/clientStoreComposable";
+import TripList from "@/components/Client/TripList.vue";
 
-const store = useStore();
+const store = useClientStoreComposable();
 
 const provider_trips = ref(null);
 const provider = ref(null);
@@ -35,13 +40,13 @@ async function fetchProviderTrips() {
     (l) => l.rel === "trips"
   );
   await store.fetchProviderTrips(link_to_provider_trips.href);
-  provider_trips.value = [...store.getProviderTrips];
+  provider_trips.value = [...store.getProviderTrips()];
   loading_trips.value = false;
 }
 
 onMounted(() => {
-  if (store.getProviderDetails && store.getProviderDetails.id) {
-    provider.value = { ...store.getProviderDetails };
+  if (store.getProviderDetails() && store.getProviderDetails().id) {
+    provider.value = { ...store.getProviderDetails() };
   }
 });
 </script>
