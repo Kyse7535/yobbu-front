@@ -3,7 +3,11 @@
   <v-row>
     <v-col cols="12">
       <v-radio-group v-model="mode_livraison">
-        <v-radio label="En point de retrait" value="mode-1"></v-radio>
+        <v-radio
+          label="En point de retrait"
+          id="mode-livraison-1"
+          value="mode-1"
+        ></v-radio>
         <v-radio label="en main propre" value="mode-2"></v-radio>
       </v-radio-group>
     </v-col>

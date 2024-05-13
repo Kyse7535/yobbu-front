@@ -11,8 +11,10 @@
       <p>{{ trip.city_departure }} ----- > {{ trip.city_arrival }}</p>
     </v-col>
     <v-col cols="12">{{ trip.description }}</v-col>
-    <v-col cols="12" @click="goToCommand(trip.id)"
-      ><v-btn>Commander</v-btn></v-col
+    <v-col cols="12"
+      ><v-btn @click="goToCommand(trip.id)" id="btn-commander"
+        >Commander</v-btn
+      ></v-col
     >
 
     <v-col cols="12" class="cursor-pointer"

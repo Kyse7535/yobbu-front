@@ -11,7 +11,14 @@ export const useProviderStore = defineStore("provider", {
       provider: {
         id: "77777777-7777-7777-7777-777777777777",
       },
-      formats: [],
+      formats: [
+        {
+          title: "lorem",
+          description: "lorem",
+          id: "fd0b69f5-dacb-4c82-8fac-016eee01c97b",
+          trips: ["7e389b6d-46ce-4cc9-8e10-6fdef5fbbd6f"],
+        },
+      ],
     };
   },
   getters: {
@@ -32,7 +39,7 @@ export const useProviderStore = defineStore("provider", {
           },
         });
         if (result && result.data) {
-          let trips = [...this.trips].map((t) => t.value);
+          let trips = [...this.trips].map((t) => (t && t.value ? t.value : t));
           let trip_not_in_result = trips.filter(
             (t) => [...result.data].findIndex((tr) => tr.id === t.id) === -1
           );
@@ -76,9 +83,13 @@ export const useProviderStore = defineStore("provider", {
       } else {
         this.formats.push(format);
       }
+      return index;
     },
-    deleteFormat(format) {
-      const index = this.formats.findIndex((f) => f.id === format.id);
+    updateFormats(formats) {
+      this.formats = [...formats];
+    },
+    deleteFormat(format_id) {
+      const index = this.formats.findIndex((f) => f.id === format_id);
       if (index > -1) {
         this.formats.splice(index, 1);
       }

@@ -52,23 +52,29 @@
           v-model="trip.price_per_kg"
           :disabled="!weight_activated"
         ></v-text-field>
-        <FormatTrip :trip_id="trip.id" />
+        <FormatTrip
+          :trip_id="trip.id"
+          :validate_format="validate_format"
+          @format-persisted="validate_format = false"
+        />
         <v-btn type="submit" color="primary">create trip</v-btn>
       </v-form>
     </v-col>
   </v-row>
 </template>
 <script setup>
-import { ref, watch, defineProps, onBeforeMount } from "vue";
+import { ref, watch, defineProps, onBeforeMount, inject } from "vue";
 import useUtils from "@/composables/utils";
-import FormatTrip from "../../components/Provider/FormatTrip.vue";
+import FormatTrip from "@/components/Provider/FormatTrip.vue";
 import useProviderStoreComposable from "@/composables/providerStoreComposable";
 import useHandlerMessage from "@/composables/HandlerMessage";
 
 const handlerMessage = useHandlerMessage();
+const validate_format = ref(false);
 const providerStore = useProviderStoreComposable();
 const utils = useUtils();
 const valid = ref(false);
+const route = inject("route");
 const trip = ref({
   id: "",
   city_departure: "",
@@ -89,6 +95,7 @@ const trip = ref({
 const weight_activated = ref(false);
 function submit() {
   try {
+    validate_format.value = true;
     const result = providerStore.addTrip(trip);
     if (result > -1) {
       handlerMessage.displayMessage("Trip modified successfully.");
@@ -96,16 +103,24 @@ function submit() {
       handlerMessage.displayMessage("Trip added successfully.");
     }
   } catch (error) {
-    (error &&
-      error.response &&
-      error.response.data &&
-      !!error.response.data.message) ||
-      "impossible to find the resource";
+    handlerMessage.displayError(
+      (error &&
+        error.response &&
+        error.response.data &&
+        !!error.response.data.message) ||
+        "impossible to find the resource"
+    );
   }
 }
 
 onBeforeMount(() => {
-  trip.value.id = utils.generateUUID();
+  if (route.query.trip_id) {
+    trip.value = providerStore
+      .getTrips()
+      .find((t) => t.id === route.query.trip_id);
+  } else {
+    trip.value.id = utils.generateUUID();
+  }
 });
 </script>
 <style scoped></style>

@@ -52,6 +52,11 @@ const routes = [
     name: "providerAddTrips",
     component: () => import("@/views/Provider/AddTripsView.vue"),
   },
+  {
+    path: "/getTripDetails",
+    name: "providerGetTripDetails",
+    component: () => import("@/views/Provider/GetTripDetailsView.vue"),
+  },
 ];
 
 const router = new createRouter({

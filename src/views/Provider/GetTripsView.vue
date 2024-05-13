@@ -12,13 +12,13 @@
         <li
           v-for="trip in trips"
           @click="getTripDetails(trip.id)"
-          class="d-flex align-center justify-space-between w-50"
+          class="d-flex align-center justify-space-between w-50 cursor-pointer"
         >
           <p>{{ trip.country_departure }} ---- > {{ trip.country_arrival }}</p>
           <v-btn icon @click="delete_trip_dialog = true"
             ><v-icon icon="mdi-trash-can-outline"></v-icon
           ></v-btn>
-          <v-btn>modifier</v-btn>
+          <v-btn @click="modifyTrip(trip.id)">modifier</v-btn>
           <v-dialog v-model="delete_trip_dialog" width="auto">
             <v-card>
               <template #text>
@@ -51,7 +51,7 @@ const router = inject("router");
 const delete_trip_dialog = ref(false);
 function getTripDetails(trip_id) {
   if (trip_id) {
-    router.push({ name });
+    router.push({ name: "providerGetTripDetails", query: { trip_id } });
   }
 }
 
@@ -59,6 +59,10 @@ async function deleteTrip(trip_id) {
   await providerStoreComposable.deleteTrip(trip_id);
   delete_trip_dialog.value = false;
   handlerMessage.displayMessage("votre trip a bien ete supprime");
+}
+
+function modifyTrip(trip_id) {
+  router.push({ name: "providerAddTrips", query: { trip_id } });
 }
 
 watch(

@@ -55,6 +55,7 @@
               <v-btn
                 :disabled="disableNextBtn"
                 color="primary"
+                id="next-btn"
                 @click="handleNext"
                 >{{ next_text }}</v-btn
               >
@@ -71,7 +72,7 @@ import ColiDetails from "@/components/Client/ColiDetails.vue";
 import DepartDetails from "@/components/Client/DepartDetails.vue";
 import ArriveeDetails from "@/components/Client/ArriveeDetails.vue";
 import useClientStoreComposable from "@/composables/clientStoreComposable";
-import { ref, onMounted, computed, inject } from "vue";
+import { ref, onMounted, computed, inject, watch } from "vue";
 import InfoCommand from "@/components/Client/InfoCommand.vue";
 import useUtils from "@/composables/utils";
 const step = ref(0);
@@ -94,6 +95,7 @@ const disableNextBtn = computed(() =>
     ? !steps_completed.value[step.value]
     : true
 );
+// const disableNextBtn = ref(true);
 
 //order details
 const order = ref({
@@ -140,6 +142,20 @@ function handleNext() {
     handlerMessage.displayMessage(messageToDisplay);
   }
 }
+
+// watch(
+//   steps_completed,
+//   (newVal, oldVal) => {
+//     disableNextBtn.value =
+//       step.value < 2
+//         ? !newVal[step.value]
+//         : transaction.value
+//         ? !newVal[step.value]
+//         : true;
+//   },
+//   { deep: true }
+// );
+
 onMounted(() => {
   if (route.query.trip_id) {
     const trip_id = route.query.trip_id;

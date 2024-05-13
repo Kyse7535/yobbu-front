@@ -1,32 +1,40 @@
 <template>
   <div>
     <div v-if="!adding_format">
-      <ul v-if="formats && formats.length > 0">
+      <ul>
         <li class="d-flex justify-space-between">
           <span v-for="header in header_format">
             {{ header }}
           </span>
         </li>
-        <li v-for="format in formats" class="d-flex justify-space-between">
-          <v-checkbox v-model="format.used" color="primary"></v-checkbox>
-          <p>{{ format && format.title }}</p>
-          <p>{{ format && format.description }}</p>
-          <v-btn icon @click="delete_format_dialog = true"
-            ><v-icon icon="mdi-trash-can-outline"></v-icon
-          ></v-btn>
-          <v-btn @click="modifyFormat(format.id)">modifier </v-btn>
-          <v-dialog v-model="delete_format_dialog" width="auto">
-            <v-card min-width="100" max-width="250">
-              <template #text> Voulez-vous le supprimer ? </template>
-              <v-card-actions>
-                <v-btn @click="delete_format_dialog = false">cancel</v-btn>
-                <v-btn @click="deleteFormat(format.id)" class="bg-red"
-                  >delete</v-btn
-                >
-              </v-card-actions>
-            </v-card>
-          </v-dialog>
-        </li>
+        <li v-if="formats && formats.length === 0">No formats found</li>
+
+        <div v-if="formats && formats.length > 0">
+          <li v-for="format in formats" class="d-flex justify-space-between">
+            <v-checkbox
+              :model-value="format.trips && format.trips.has(props.trip_id)"
+              @click="handleUseFormat(format.id)"
+              color="primary"
+            ></v-checkbox>
+            <p>{{ format && format.title }}</p>
+            <p>{{ format && format.description }}</p>
+            <v-btn icon @click="delete_format_dialog = true"
+              ><v-icon icon="mdi-trash-can-outline"></v-icon
+            ></v-btn>
+            <v-btn @click="modifyFormat(format.id)">modifier </v-btn>
+            <v-dialog v-model="delete_format_dialog" width="auto">
+              <v-card min-width="100" max-width="250">
+                <template #text> Voulez-vous le supprimer ? </template>
+                <v-card-actions>
+                  <v-btn @click="delete_format_dialog = false">cancel</v-btn>
+                  <v-btn @click="deleteFormat(format.id)" class="bg-red"
+                    >delete</v-btn
+                  >
+                </v-card-actions>
+              </v-card>
+            </v-dialog>
+          </li>
+        </div>
       </ul>
       <v-btn @click="addNewFormat">Add a format</v-btn>
     </div>
@@ -40,14 +48,15 @@
   </div>
 </template>
 <script setup>
-import { ref, watch, defineProps } from "vue";
+import { ref, watch, defineProps, onBeforeMount, defineEmits } from "vue";
 import AddFormat from "@/components/Provider/AddFormat.vue";
 import useProviderStoreComposable from "@/composables/providerStoreComposable.js";
 import useHandlerMessage from "@/composables/HandlerMessage.js";
 import useUtils from "@/composables/utils.js";
 
 const utils = useUtils();
-const props = defineProps(["trip_id"]);
+const emit = defineEmits(["format-persisted"]);
+const props = defineProps(["trip_id", "validate_format"]);
 const handlerMessage = useHandlerMessage();
 const providerStore = useProviderStoreComposable();
 const header_format = ref([
@@ -67,11 +76,35 @@ function addNewFormat() {
   format_to_modify.value = {};
   adding_format.value = true;
 }
+
+function handleUseFormat(format_id) {
+  if (format_id) {
+    let index_format = formats.value.findIndex((f) => f.id === format_id);
+    let format = { ...formats.value[index_format] };
+    if (!format.trips) {
+      format.trips = new Set();
+    }
+    if (format.trips.has(props.trip_id)) {
+      format.trips.delete(props.trip_id);
+    } else {
+      format.trips.add(props.trip_id);
+    }
+    formats.value[index_format] = format;
+  }
+}
 function deleteFormat(format_id) {
   if (format_id) {
-    const index = formats.value.findIndex((f) => f.id == format_id);
-    if (index > -1) {
-      formats.value.splice(index, 1);
+    try {
+      providerStore.deleteFormat(format_id);
+      delete_format_dialog.value = false;
+    } catch (error) {
+      handlerMessage.displayError(
+        (error &&
+          error.response &&
+          error.response.data &&
+          !!error.response.data.message) ||
+          "error when deleting format"
+      );
     }
   }
 }
@@ -87,35 +120,80 @@ function modifyFormat(format_id) {
 
 function saveFormat(format) {
   if (format) {
-    if (!format.trips) {
-      format.trips = new Set();
-      format.trips.add(props.trip_id);
-    }
-    const index = formats.value.findIndex((f) => f.id == format.id);
-    if (index > -1) {
-      formats.value[index] = { ...format };
-      handlerMessage.displayMessage("Format modified successfully");
-    } else {
-      formats.value.push(format);
-      handlerMessage.displayMessage("Format saved successfully");
+    let new_format = { ...format };
+    try {
+      let result = providerStore.addFormat(new_format);
+      if (result > -1) {
+        handlerMessage.displayMessage("Format modified successfully");
+      } else {
+        handlerMessage.displayMessage("For4mat saved successfully");
+      }
+    } catch (error) {
+      handlerMessage.displayError(
+        (error &&
+          error.response &&
+          error.response.data &&
+          !!error.response.data.message) ||
+          "error when saving format"
+      );
     }
   }
   adding_format.value = false;
 }
 
+function copyFormats(formats) {
+  let copy = [];
+  for (let format of formats) {
+    copy.push(utils.copyObject({ ...format }));
+  }
+  return copy;
+}
 watch(
-  formats,
-  (newVal, oldVal) => {
-    if (utils.compareArrays(newVal, oldVal)) {
-      formats.value = formats.value.map((f) => {
-        if (!f.used && f.trips.has(props.trip_id)) {
-          f.trips.delete(props.trip_id);
-        }
-        return f;
-      });
-    }
+  () => providerStore.getFormats(),
+  (val) => {
+    formats.value = copyFormats(val);
   },
   { deep: true }
 );
+
+watch(
+  () => props.validate_format,
+  (val) => {
+    if (val) {
+      try {
+        let _formats = [...formats.value];
+        providerStore.updateFormats(_formats);
+        emit("format-persisted");
+      } catch (error) {
+        handlerMessage.displayError(
+          (error &&
+            error.response &&
+            error.response.data &&
+            !!error.response.data.message) ||
+            "error when trying to update formats"
+        );
+      }
+    }
+  }
+);
+
+// onBeforeMount(() => {
+//   formats.value = copyFormats(providerStore.getFormats());
+// });
+
+// watch(
+//   formats,
+//   (newVal, oldVal) => {
+//     if (!utils.compareArrays(newVal, oldVal)) {
+//       formats.value = formats.value.map((f) => {
+//         if (f.trips.has(props.trip_id)) {
+//           f.trips.delete(props.trip_id);
+//         }
+//         return f;
+//       });
+//     }
+//   },
+//   { deep: true }
+// );
 </script>
 <style scoped></style>

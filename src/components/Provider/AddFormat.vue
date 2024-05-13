@@ -25,11 +25,12 @@ const current_format = ref({
 });
 function saveFormat() {
   if (current_format.value && !current_format.value.id) {
-    current_format.value.used = true;
     current_format.value.id = utils.generateUUID();
   }
   emit("add-format", current_format.value);
 }
+
+function saveAndReuse() {}
 
 function cancel() {
   emit("cancel-add-format");

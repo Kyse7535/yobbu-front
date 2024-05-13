@@ -20,8 +20,45 @@ export default function useUtils() {
 
     return true;
   };
+  const copyObject = (obj) => {
+    if (typeof obj !== "object" || obj === null) {
+      return obj;
+    }
+    if (obj instanceof Set) {
+      return new Set([...obj]);
+    }
+    if (obj instanceof Array) {
+      let _array = [];
+      for (let element of obj) {
+        _array.push(copyObject(element));
+      }
+    }
+    let newObj = {};
+    for (let key of Object.keys(obj)) {
+      if (typeof obj[key] !== "object") {
+        newObj[key] = obj[key];
+      } else {
+        newObj[key] = copyObject(obj[key]);
+      }
+    }
+    return newObj;
+  };
   return {
     compareObjects,
+    compareSimpleArrays: (arr1, arr2) => {
+      if (arr1.length !== arr2.length) {
+        return false;
+      }
+
+      for (let i = 0; i < arr1.length; i++) {
+        if (arr1[i] !== arr2[i]) {
+          return false;
+        }
+      }
+
+      return true;
+    },
+
     compareArrays: (arr1, arr2) => {
       if (arr1.length !== arr2.length) {
         return false;
@@ -59,6 +96,7 @@ export default function useUtils() {
             return false;
           }
         }
+        return true;
       }
     },
     generateUUID: () => {
@@ -73,5 +111,19 @@ export default function useUtils() {
       );
       return uuid;
     },
+    rules: {
+      required: (value) => !!value || "Required.",
+      counter: (value) => value.length <= 20 || "Max 20 characters",
+      short_text: (value) => {
+        const pattern = /^[a-zA-Z]+$/;
+        return pattern.test(value) || "invalid text";
+      },
+      email: (value) => {
+        const pattern =
+          /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+        return pattern.test(value) || "Invalid e-mail.";
+      },
+    },
+    copyObject,
   };
 }

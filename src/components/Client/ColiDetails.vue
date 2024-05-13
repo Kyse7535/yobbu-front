@@ -6,7 +6,6 @@
       </v-col>
       <v-col cols="12"
         ><v-text-field
-          hide-details="auto"
           label="country departure"
           :model-value="props.trip.country_departure"
           :disabled="true"
@@ -14,7 +13,6 @@
       ></v-col>
       <v-col cols="12"
         ><v-text-field
-          hide-details="auto"
           label="country arrival"
           :model-value="props.trip.country_arrival"
           :disabled="true"
@@ -22,7 +20,6 @@
       ></v-col>
       <v-col cols="12"
         ><v-text-field
-          hide-details="auto"
           label="city departure"
           :model-value="props.trip.city_departure"
           :disabled="true"
@@ -30,7 +27,6 @@
       ></v-col>
       <v-col cols="12"
         ><v-text-field
-          hide-details="auto"
           label="city arrival"
           :model-value="props.trip.city_arrival"
           :disabled="true"
@@ -42,12 +38,12 @@
         <h2>Poids</h2>
         <div class="d-flex align-center">
           <v-text-field
-            hide-details="auto"
             label="weight"
+            id="weight"
             v-model="weight"
           ></v-text-field>
           <v-radio-group v-model="poids_unite" inline>
-            <v-radio label="grammes" value="g"></v-radio>
+            <v-radio label="grammes" id="poids-unite-1" value="g"></v-radio>
             <v-radio label="kilogrammes" value="kg"></v-radio>
           </v-radio-group>
         </div>
@@ -57,7 +53,7 @@
       <v-col cols="12" id="formats">
         <h2>Formats</h2>
         <v-radio-group v-model="format">
-          <v-radio label="Format 1" value="one"></v-radio>
+          <v-radio label="Format 1" id="format-1" value="one"></v-radio>
           <v-radio label="Format 2" value="two"></v-radio>
           <v-radio label="Format 3" value="three"></v-radio>
           <v-radio label="Format 4" value="four"></v-radio>
@@ -98,7 +94,7 @@ watch(isCompleted, (val) => {
 
 watch(format, (val) => {
   emit("completed", {
-    completed: isCompleted,
+    completed: isCompleted.value,
     _format: val,
     _poids_unite: poids_unite.value,
     _weight: weight.value,
@@ -106,7 +102,7 @@ watch(format, (val) => {
 });
 watch(weight, (val) => {
   emit("completed", {
-    completed: isCompleted,
+    completed: isCompleted.value,
     _format: format.value,
     _poids_unite: poids_unite.value,
     _weight: val,
@@ -114,7 +110,7 @@ watch(weight, (val) => {
 });
 watch(poids_unite, (val) => {
   emit("completed", {
-    completed: isCompleted,
+    completed: isCompleted.value,
     _format: format.value,
     _poids_unite: poids_unite.value,
     _weight: weight.value,

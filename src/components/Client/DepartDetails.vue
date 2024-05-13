@@ -7,6 +7,7 @@
         <v-radio
           label="Depuis un de nos points de vente"
           value="mode-1"
+          id="mode-envoi-1"
         ></v-radio>
         <v-radio label="Depuis votre adresse" value="mode-2"></v-radio>
       </v-radio-group>
@@ -104,7 +105,8 @@
         Afin de vous proposer un suivi de qualité sur votre colis, nous avons
         besoin de votre contact pour vous joindre. Merci de nous l’indiquer :
       </p>
-      <v-text-field label="email" v-model="email"> </v-text-field>
+      <v-text-field label="email" id="email-envoi" v-model="email">
+      </v-text-field>
     </v-col>
   </v-row>
 </template>
