@@ -32,6 +32,7 @@ export default function useUtils() {
       for (let element of obj) {
         _array.push(copyObject(element));
       }
+      return _array;
     }
     let newObj = {};
     for (let key of Object.keys(obj)) {

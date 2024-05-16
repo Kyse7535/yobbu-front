@@ -11,5 +11,6 @@ export default function useProviderStoreComposable() {
     addTrip: (trip) => store.addTrip(trip),
     updateFormats: (formats) => store.updateFormats(formats),
     getFormats: () => store.getFormats,
+    getProviderInfo: () => store.getProviderInfo,
   };
 }

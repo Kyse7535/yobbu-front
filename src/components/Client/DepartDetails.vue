@@ -1,15 +1,18 @@
 <template>
   <h1>Depart du colis</h1>
   <v-row>
-    <v-col cols="12">
+    <v-col cols="12" v-if="props.trip && props.trip.mode_transport">
       <h2>Mode envoi du colis</h2>
       <v-radio-group v-model="mode_envoi">
-        <v-radio
-          label="Depuis un de nos points de vente"
-          value="mode-1"
-          id="mode-envoi-1"
-        ></v-radio>
-        <v-radio label="Depuis votre adresse" value="mode-2"></v-radio>
+        <v-radio v-for="mode in props.trip.mode_transport" :key="mode.id">
+          <template #label>
+            <div>
+              <h4>{{ mode.title }}</h4>
+              <p>{{ mode.description }}</p>
+              <p>{{ mode.price }}</p>
+            </div>
+          </template>
+        </v-radio>
       </v-radio-group>
     </v-col>
   </v-row>

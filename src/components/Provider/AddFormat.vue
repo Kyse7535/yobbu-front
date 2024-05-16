@@ -2,6 +2,10 @@
   <v-form>
     <h2>Add a format</h2>
     <v-text-field label="title" v-model="current_format.title"></v-text-field>
+    <v-text-field
+      label="price"
+      v-model.number="current_format.price"
+    ></v-text-field>
     <v-textarea
       label="description"
       v-model="current_format.description"
@@ -22,10 +26,12 @@ const current_format = ref({
   title: "",
   description: "",
   image: "",
+  price: 0,
 });
 function saveFormat() {
   if (current_format.value && !current_format.value.id) {
     current_format.value.id = utils.generateUUID();
+    current_format.value.trips = new Set();
   }
   emit("add-format", current_format.value);
 }

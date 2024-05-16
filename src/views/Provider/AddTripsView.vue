@@ -45,13 +45,17 @@
         <v-switch
           label="enable weight"
           color="primary"
-          v-model="weight_activated"
+          v-model="trip.weight_activated"
         ></v-switch>
         <v-text-field
           label="price per kg"
           v-model="trip.price_per_kg"
           :disabled="!weight_activated"
         ></v-text-field>
+        <ModeTransport
+          :trip="utils.copyObject(trip)"
+          @mode-transport="(modes) => (trip.mode_transport = modes)"
+        />
         <FormatTrip
           :trip_id="trip.id"
           :validate_format="validate_format"
@@ -68,6 +72,7 @@ import useUtils from "@/composables/utils";
 import FormatTrip from "@/components/Provider/FormatTrip.vue";
 import useProviderStoreComposable from "@/composables/providerStoreComposable";
 import useHandlerMessage from "@/composables/HandlerMessage";
+import ModeTransport from "@/components/Provider/ModeTransport.vue";
 
 const handlerMessage = useHandlerMessage();
 const validate_format = ref(false);
@@ -81,22 +86,26 @@ const trip = ref({
   city_arrival: "",
   country_departure: "",
   country_arrival: "",
-  available_volume: "",
+  available_volume: 0,
   description: "",
   date_departure: "",
   date_arrival: "",
   activated_instance: true,
-  status: "",
+  status: "OPEN",
   address_departure: "",
   address_arrival: "",
-  price_per_kg: "",
+  price_per_kg: 0,
+  weight_activated: false,
+  provider_id: "",
+  mode_transport: [],
 });
 
 const weight_activated = ref(false);
+
 function submit() {
   try {
     validate_format.value = true;
-    const result = providerStore.addTrip(trip);
+    const result = providerStore.addTrip(trip.value);
     if (result > -1) {
       handlerMessage.displayMessage("Trip modified successfully.");
     } else {
@@ -120,6 +129,7 @@ onBeforeMount(() => {
       .find((t) => t.id === route.query.trip_id);
   } else {
     trip.value.id = utils.generateUUID();
+    trip.value.provider_id = providerStore.getProviderInfo().id;
   }
 });
 </script>

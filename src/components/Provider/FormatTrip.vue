@@ -18,6 +18,7 @@
             ></v-checkbox>
             <p>{{ format && format.title }}</p>
             <p>{{ format && format.description }}</p>
+            <p>{{ format && format.price }}</p>
             <v-btn icon @click="delete_format_dialog = true"
               ><v-icon icon="mdi-trash-can-outline"></v-icon
             ></v-btn>
@@ -63,6 +64,7 @@ const header_format = ref([
   "selected",
   "title",
   "description",
+  "price",
   "delete",
   "modify",
 ]);
@@ -126,7 +128,7 @@ function saveFormat(format) {
       if (result > -1) {
         handlerMessage.displayMessage("Format modified successfully");
       } else {
-        handlerMessage.displayMessage("For4mat saved successfully");
+        handlerMessage.displayMessage("Format saved successfully");
       }
     } catch (error) {
       handlerMessage.displayError(

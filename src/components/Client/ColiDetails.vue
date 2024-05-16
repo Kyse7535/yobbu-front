@@ -34,7 +34,11 @@
       ></v-col>
     </v-row>
     <v-row>
-      <v-col cols="12" id="poids">
+      <v-col
+        cols="12"
+        id="poids"
+        v-if="props.trip && props.trip.weight_activated"
+      >
         <h2>Poids</h2>
         <div class="d-flex align-center">
           <v-text-field
@@ -51,14 +55,24 @@
     </v-row>
     <v-row>
       <v-col cols="12" id="formats">
-        <h2>Formats</h2>
-        <v-radio-group v-model="format">
-          <v-radio label="Format 1" id="format-1" value="one"></v-radio>
-          <v-radio label="Format 2" value="two"></v-radio>
-          <v-radio label="Format 3" value="three"></v-radio>
-          <v-radio label="Format 4" value="four"></v-radio>
-          <v-radio label="Format 5" value="five"></v-radio>
-          <v-radio label="Format 6" value="six"></v-radio>
+        <v-radio-group v-model="format_selected">
+          <template #label>
+            <h3>Formats</h3>
+          </template>
+          <v-radio
+            v-for="format in formats_trip"
+            :key="format.id"
+            :value="format"
+            class="d-flex align-center"
+          >
+            <template #label>
+              <div>
+                <h4>{{ format.title }}</h4>
+                <p>{{ format.description }}</p>
+                <p>{{ format.price }}</p>
+              </div>
+            </template>
+          </v-radio>
         </v-radio-group>
       </v-col>
     </v-row>
@@ -74,25 +88,29 @@ import {
   watch,
 } from "vue";
 
+import useClientStoreComposable from "@/composables/clientStoreComposable";
+
+const clientStoreComposable = useClientStoreComposable();
 const props = defineProps(["trip", "order"]);
 const emit = defineEmits(["completed"]);
 const weight = ref(null);
-const format = ref(null);
+const format_selected = ref(null);
 const poids_unite = ref(null);
+const formats_trip = ref(null);
 const isCompleted = computed(
-  () => !!weight.value && !!format.value && !!poids_unite.value
+  () => !!weight.value && !!format_selected.value && !!poids_unite.value
 );
 
 watch(isCompleted, (val) => {
   emit("completed", {
     completed: val,
-    _format: format.value,
+    _format: format_selected.value,
     _poids_unite: poids_unite.value,
     _weight: weight.value,
   });
 });
 
-watch(format, (val) => {
+watch(format_selected, (val) => {
   emit("completed", {
     completed: isCompleted.value,
     _format: val,
@@ -103,7 +121,7 @@ watch(format, (val) => {
 watch(weight, (val) => {
   emit("completed", {
     completed: isCompleted.value,
-    _format: format.value,
+    _format: format_selected.value,
     _poids_unite: poids_unite.value,
     _weight: val,
   });
@@ -111,17 +129,21 @@ watch(weight, (val) => {
 watch(poids_unite, (val) => {
   emit("completed", {
     completed: isCompleted.value,
-    _format: format.value,
+    _format: format_selected.value,
     _poids_unite: poids_unite.value,
     _weight: weight.value,
   });
 });
 
-onBeforeMount(() => {
+onBeforeMount(async () => {
   if (props.order) {
     weight.value = props.order.weight || "";
-    format.value = props.order.format || "";
+    format_selected.value = props.order.format || "";
     poids_unite.value = props.order.poids_unite || "";
+  }
+  if (props.trip) {
+    await clientStoreComposable.fetchTripFormats(props.trip.id);
+    formats_trip.value = clientStoreComposable.getFormatTrips();
   }
 });
 </script>

@@ -5,6 +5,11 @@ import useHandlerMessage from "@/composables/HandlerMessage";
 // Your code using axios goes here
 
 let url = `http://localhost:4500`;
+let headers = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Accept": "*",
+  "Access-Control-Content-Type": "*",
+};
 const handlerMessage = useHandlerMessage();
 export const useStore = defineStore("trip", {
   state: () => ({
@@ -12,12 +17,14 @@ export const useStore = defineStore("trip", {
     provider: {},
     provider_trips: [],
     panier: [],
+    format_trips: [],
   }),
   getters: {
     getTrips: (state) => state.trips,
     getProviderDetails: (state) => state.provider,
     getProviderTrips: (state) => state.provider_trips,
     getPanier: (state) => state.panier,
+    getFormatTrips: (state) => state.format_trips,
   },
   actions: {
     async fetchTrips({
@@ -38,11 +45,7 @@ export const useStore = defineStore("trip", {
             country_departure,
             country_arrival,
           },
-          headers: {
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Accept": "*",
-            "Access-Control-Content-Type": "*",
-          },
+          headers,
         });
         if (response.status === 200) {
           this.trips = response.data;
@@ -61,11 +64,7 @@ export const useStore = defineStore("trip", {
     async fetchTripById(id) {
       try {
         let response = await axios.get(url + `/api/v1/${id}/Trip`, {
-          headers: {
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Accept": "*",
-            "Access-Control-Content-Type": "*",
-          },
+          headers,
         });
         if (response.status === 200) {
           this.trips.push(response.data);
@@ -125,6 +124,14 @@ export const useStore = defineStore("trip", {
       const index = this.panier.findIndex((o) => o.id === order_id);
       if (index > -1) {
         this.panier.splice(index, 1);
+      }
+    },
+    async fetchTripFormats(trip_id) {
+      //call api
+      let call_url = `${url}/api/v1/Trip/Formats/List/${trip_id}`;
+      let result = await axios.get(call_url, { headers });
+      if (result && result.status === 200) {
+        this.format_trips = result.data;
       }
     },
   },

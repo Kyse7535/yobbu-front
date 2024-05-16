@@ -8,7 +8,7 @@ import useHandlerMessage from "./composables/HandlerMessage";
 const route = useRoute();
 const router = useRouter();
 const handlerMessage = useHandlerMessage();
-const isProvider = false;
+const isProvider = true;
 provide("isProvider", isProvider);
 provide("route", route);
 provide("router", router);

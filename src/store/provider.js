@@ -4,21 +4,20 @@ import useHandlerMessage from "@/composables/HandlerMessage";
 
 const handlerMessage = useHandlerMessage();
 const baseUrl = "http://localhost:4500/";
+let headers = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Accept": "*",
+  "Access-Control-Content-Type": "*",
+  "Content-Type": "application/json",
+};
 export const useProviderStore = defineStore("provider", {
   state: () => {
     return {
       trips: [],
       provider: {
-        id: "77777777-7777-7777-7777-777777777777",
+        id: "df7f3b02-0328-4bdc-9a1d-fc58eb5ee7fc",
       },
-      formats: [
-        {
-          title: "lorem",
-          description: "lorem",
-          id: "fd0b69f5-dacb-4c82-8fac-016eee01c97b",
-          trips: ["7e389b6d-46ce-4cc9-8e10-6fdef5fbbd6f"],
-        },
-      ],
+      formats: [],
     };
   },
   getters: {
@@ -94,14 +93,19 @@ export const useProviderStore = defineStore("provider", {
         this.formats.splice(index, 1);
       }
     },
-    addTrip(trip) {
-      const index = this.trips.findIndex((t) => t.id === trip.id);
-      if (index > -1) {
-        this.trips[index] = trip;
-      } else {
-        this.trips.push(trip);
+    async addTrip(trip) {
+      let result = await axios.post(`${baseUrl}api/v1/Trips`, trip, {
+        headers,
+      });
+      if (result && result.status === 200) {
+        const index = this.trips.findIndex((t) => t.id === trip.id);
+        if (index > -1) {
+          this.trips[index] = trip;
+        } else {
+          this.trips.push(trip);
+        }
+        return index;
       }
-      return index;
     },
   },
 });

@@ -75,6 +75,7 @@ import useClientStoreComposable from "@/composables/clientStoreComposable";
 import { ref, onMounted, computed, inject, watch } from "vue";
 import InfoCommand from "@/components/Client/InfoCommand.vue";
 import useUtils from "@/composables/utils";
+import { onBeforeMount } from "vue";
 const step = ref(0);
 const trip = ref(null);
 const store = useClientStoreComposable();
@@ -95,7 +96,6 @@ const disableNextBtn = computed(() =>
     ? !steps_completed.value[step.value]
     : true
 );
-// const disableNextBtn = ref(true);
 
 //order details
 const order = ref({
@@ -143,20 +143,7 @@ function handleNext() {
   }
 }
 
-// watch(
-//   steps_completed,
-//   (newVal, oldVal) => {
-//     disableNextBtn.value =
-//       step.value < 2
-//         ? !newVal[step.value]
-//         : transaction.value
-//         ? !newVal[step.value]
-//         : true;
-//   },
-//   { deep: true }
-// );
-
-onMounted(() => {
+onBeforeMount(async () => {
   if (route.query.trip_id) {
     const trip_id = route.query.trip_id;
     trip.value = store.getTrips().find((t) => t.id === trip_id);

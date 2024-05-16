@@ -7,6 +7,7 @@ export default function useClientStoreComposable() {
     getProviderDetails: () => store.getProviderDetails,
     getProviderTrips: () => store.getProviderTrips,
     getPanier: () => store.getPanier,
+    getFormatTrips: () => store.getFormatTrips,
     fetchTrips: async ({
       date_departure,
       date_arrival,
@@ -30,5 +31,6 @@ export default function useClientStoreComposable() {
     fetchProviderTrips: async (url) => await store.fetchProviderTrips(url),
     addCommandToPanier: (order) => store.addCommandToPanier(order),
     removeCommandToPanier: (order_id) => store.removeCommandToPanier(order_id),
+    fetchTripFormats: async (trip_id) => await store.fetchTripFormats(trip_id),
   };
 }
