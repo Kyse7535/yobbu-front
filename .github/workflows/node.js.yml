@@ -20,15 +20,23 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v4
+      
     - name: Set up Node
       uses: actions/setup-node@v4
       with:
         node-version: 18
         cache: 'npm'
+        
     - name: Install dependencis
       run: npm ci
     - name: Build
       run: npm run build
+    - name: Cypress install
+      uses: cypress-io/github-action@v6
+      with:
+        # Disable running of tests within install job
+        runTests: false
+        build: npm run build
     - name: Save build folder
       uses: actions/upload-artifact@v4
       with:
@@ -51,3 +59,4 @@ jobs:
         with:
           start: npm start
           browser: chrome
+          
