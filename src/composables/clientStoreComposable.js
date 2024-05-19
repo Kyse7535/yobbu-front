@@ -27,10 +27,13 @@ export default function useClientStoreComposable() {
 
     fetchTripById: async (id) => await store.fetchTripById(id),
 
-    fetchProviderDetails: async (url) => await store.fetchProviderDetails(url),
-    fetchProviderTrips: async (url) => await store.fetchProviderTrips(url),
+    fetchProviderDetails: async (provider_id) =>
+      await store.fetchProviderDetails(provider_id),
+    fetchProviderTrips: async (provider_id) =>
+      await store.fetchProviderTrips(provider_id),
     addCommandToPanier: (order) => store.addCommandToPanier(order),
     removeCommandToPanier: (order_id) => store.removeCommandToPanier(order_id),
     fetchTripFormats: async (trip_id) => await store.fetchTripFormats(trip_id),
+    setPanier: (panier) => store.setPanier(panier),
   };
 }

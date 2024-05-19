@@ -30,7 +30,9 @@
         class="d-flex justify-space-between align-center"
       >
         <v-checkbox
-          :model-value="trip.mode_transport.includes((m) => m.id === mode.id)"
+          :model-value="
+            trip.mode_transport.filter((m) => m.id === mode.id).length > 0
+          "
           @click="handleSelectModeExpedition(mode)"
         ></v-checkbox>
         <h4>{{ mode.title }}</h4>
@@ -51,7 +53,7 @@
             label="description"
           ></v-textarea>
           <v-text-field
-            v-model="mode_to_modify.price"
+            v-model.number="mode_to_modify.price"
             label="price"
           ></v-text-field>
         </template>
@@ -70,6 +72,9 @@ import { defineProps, defineEmits } from "vue";
 import useUtils from "@/composables/utils";
 import { ref } from "vue";
 import { onBeforeMount } from "vue";
+import useProviderStoreComposable from "@/composables/providerStoreComposable";
+import { provide } from "vue";
+const providerStore = useProviderStoreComposable();
 const utils = useUtils();
 const props = defineProps(["modes", "trip"]);
 const emits = defineEmits(["mode-transport"]);
@@ -98,11 +103,12 @@ const mode_envoi = ref([
 const mode_livraison = ref([
   {
     id: "f21b1b15-8674-4892-9b7d-1b5fd1203f3b",
-    title: "Depuis un de nos point contact",
+    title: "Depuis une adresse",
     description: "Lorem ipsum",
     step: "ARRIVEE",
     price: 15.0,
     trip_id: null,
+    provider_id: null,
   },
   {
     id: "c789b14a-01da-465f-8966-b54a3d3a6b8e",
@@ -111,6 +117,7 @@ const mode_livraison = ref([
     step: "ARRIVEE",
     price: 15.0,
     trip_id: null,
+    provider_id: null,
   },
 ]);
 
@@ -122,8 +129,10 @@ function handleSelectModeExpedition(mode) {
   const index = trip.value.mode_transport.findIndex((m) => m.id == mode.id);
   if (index > -1) {
     trip.value.mode_transport.splice(index, 1);
+    mode.provider_id = null;
   } else {
     trip.value.mode_transport.push(mode);
+    mode.provider_id = providerStore.getProviderInfo().id;
   }
   emits("mode-transport", utils.copyObject(trip.value.mode_transport));
 }
@@ -150,14 +159,35 @@ function validateModification() {
   if (index > -1) {
     let mode_transport = utils.copyObject(trip.value.mode_transport);
     mode_transport[index] = utils.copyObject(mode_to_modify.value);
-    modify_dialog.value = false;
-    emits("mode-transport", utils.copyObject(mode_transport));
+    emits("mode-transport", mode_transport);
   }
+  modify_dialog.value = false;
 }
 
-onBeforeMount(() => {
+onBeforeMount(async () => {
   if (props.trip) {
     trip.value = props.trip;
+  }
+  if (providerStore.getProviderInfo().id) {
+    try {
+      await providerStore.fetchModeTransports();
+      if (providerStore.getModeTransports().length > 0) {
+        mode_envoi.value = utils.copyObject(
+          providerStore.getModeTransports().filter((m) => m.step === "DEPART")
+        );
+        mode_livraison.value = utils.copyObject(
+          providerStore.getModeTransports().filter((m) => m.step === "ARRIVEE")
+        );
+      }
+    } catch (error) {
+      handlerMessage.displayError(
+        (error &&
+          error.response &&
+          error.response.data &&
+          !!error.response.data.message) ||
+          "error when fetching mode transport"
+      );
+    }
   }
 });
 </script>

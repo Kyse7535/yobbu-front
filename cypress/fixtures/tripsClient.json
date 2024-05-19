@@ -1,0 +1,43 @@
+[
+  {
+    "links": [],
+    "id": "fab8b398-962c-4213-95b3-6e6d1cfb1954",
+    "city_departure": "toto",
+    "city_arrival": "toto",
+    "country_departure": "toto",
+    "country_arrival": "toto",
+    "status": "OPEN",
+    "available_volume": 0,
+    "adresse_departure": null,
+    "adresse_arrival": null,
+    "description": "",
+    "date_arrival": "2024-05-24",
+    "date_departure": "2024-05-17",
+    "createdAt": "2024-05-17T19:01:27.50654+02:00",
+    "price_per_kg": 10,
+    "provider_id": "d3b07384-d9a7-43a8-9b25-dc36d05ed812",
+    "weight_activated": true,
+    "mode_transport": [
+      {
+        "links": [],
+        "id": "a12f1f76-490c-4d7a-ae3d-8627fc9a2db8",
+        "title": "Depuis un de nos point contact",
+        "description": "Lorem ipsum",
+        "step": "DEPART",
+        "price": 15,
+        "trip_ids": null,
+        "provider_id": "d3b07384-d9a7-43a8-9b25-dc36d05ed812"
+      },
+      {
+        "links": [],
+        "id": "c789b14a-01da-465f-8966-b54a3d3a6b8e",
+        "title": "Depuis un de nos point contact",
+        "description": "Lorem ipsum",
+        "step": "ARRIVEE",
+        "price": 15,
+        "trip_ids": null,
+        "provider_id": "d3b07384-d9a7-43a8-9b25-dc36d05ed812"
+      }
+    ]
+  }
+]

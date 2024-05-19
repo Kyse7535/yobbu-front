@@ -34,15 +34,17 @@
               <DepartDetails
                 :trip="trip"
                 :order="order"
+                :isDepart="true"
                 @completed="(data) => handleDepartDetailsCompleted(data)"
               >
               </DepartDetails>
             </v-stepper-window-item>
             <v-stepper-window-item value="2">
-              <ArriveeDetails
+              <DepartDetails
                 :trip="trip"
                 :order="order"
-                @completed="(n) => (steps_completed[2] = n)"
+                :isDepart="false"
+                @completed="(data) => handleArriveeDetailsCompleted(data)"
               />
             </v-stepper-window-item>
           </v-stepper-window>
@@ -64,7 +66,11 @@
         </v-stepper>
       </v-col>
     </v-row>
-    <InfoCommand :order="order" :trip="trip" />
+    <InfoCommand
+      :order="order"
+      :trip="trip"
+      @price="(p) => (order.price = p)"
+    />
   </v-row>
 </template>
 <script setup>
@@ -112,9 +118,23 @@ function handleColiDetailsCompleted({
   order.value.poids_unite = _poids_unite;
   steps_completed.value[step.value] = completed;
 }
+
+function handleArriveeDetailsCompleted({
+  completed,
+  mode_livraison,
+  adresse_arrivee,
+  email_arrivee,
+}) {
+  order.value.mode_livraison = mode_livraison;
+  order.value.adresse_arrivee = adresse_arrivee;
+  order.value.email_arrivee = email_arrivee;
+  steps_completed.value[step.value] = completed;
+}
+
 function handleDepartDetailsCompleted({
   completed,
   mode_envoi,
+  mode_livraison,
   adresse_depart,
   email_depart,
 }) {
@@ -123,6 +143,7 @@ function handleDepartDetailsCompleted({
   order.value.email_depart = email_depart;
   steps_completed.value[step.value] = completed;
 }
+
 function handleNext() {
   if (step.value < 2 && steps_completed.value[step.value]) {
     step.value++;
@@ -132,6 +153,7 @@ function handleNext() {
     let messageToDisplay = "";
     if (transaction.value) {
       store.addCommandToPanier(order.value);
+      localStorage.setItem("panier", JSON.stringify(store.getPanier()));
       transaction.value = false;
     }
     if (create_order.value) {

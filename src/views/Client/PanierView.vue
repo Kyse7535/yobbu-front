@@ -18,21 +18,34 @@
               <p>Depart: {{ order.trip.city_departure }}</p>
               <p>Arrivee: {{ order.trip.city_arrival }}</p>
               <p>Poids: {{ order.weight }} {{ order.poids_unite }}</p>
-              <p>Format: {{ order.format }}</p>
+              <p>Format: {{ order.format.title }}</p>
+              <p>Mode envoi: {{ order.mode_envoi.title }}</p>
+              <p>Mode livraison: {{ order.mode_livraison.title }}</p>
             </div>
           </div>
           <div>
-            <h5>35€</h5>
-            <v-btn icon @click="delete_dialog = true">
+            <h5>Prix: {{ order.price }}</h5>
+            <v-btn
+              icon
+              @click="delete_dialog = true"
+              :id="`btn-delete-order-${order_index}`"
+            >
               <v-icon icon="mdi-trash-can-outline"></v-icon>
             </v-btn>
-            <v-btn @click="modifyOrder(order.id)">modifier</v-btn>
+            <v-btn
+              @click="modifyOrder(order.id)"
+              :id="`btn-modifier-order-${order_index}`"
+              >modifier</v-btn
+            >
             <v-dialog v-model="delete_dialog" width="auto">
               <v-card max-width="400">
                 <template #text> Are you sure ? </template>
                 <v-card-actions>
                   <v-btn @click="delete_dialog = false"> close </v-btn>
-                  <v-btn @click="deleteOrder(order.id)" class="bg-red"
+                  <v-btn
+                    @click="deleteOrder(order.id)"
+                    id="btn-confirm-delete-order"
+                    class="bg-red"
                     >delete</v-btn
                   >
                 </v-card-actions>
@@ -77,10 +90,7 @@ function modifyOrder(order_id) {
 watch(
   panier,
   (newVal, oldVal) => {
-    if (
-      newVal.length > 0 &&
-      newVal.length !== newVal.filter((o) => !!o.trip).length
-    ) {
+    if (!utils.compareObjects(newVal, oldVal)) {
       panier.value = panier.value.map((order) => {
         order.trip = store.getTrips().find((t) => t.id === order.trip_id);
         return order;

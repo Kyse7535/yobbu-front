@@ -66,9 +66,7 @@ async function searchTripById(id) {
 
 async function goToProviderDetails() {
   loadingData.value = true;
-  let link_to_provider = trip.value.links.find((l) => l.rel === "provider");
-  await store.fetchProviderDetails(link_to_provider.href);
-  let provider_id = store.getProviderDetails() && store.getProviderDetails().id;
+  let provider_id = trip.value.provider_id;
   if (provider_id) {
     router.push({
       name: "provider",

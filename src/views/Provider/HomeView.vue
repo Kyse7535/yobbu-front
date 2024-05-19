@@ -18,6 +18,9 @@
 </template>
 <script setup>
 import { ref, inject } from "vue";
+import useProviderStoreComposable from "@/composables/providerStoreComposable";
+import { onBeforeMount } from "vue";
+const providerStore = useProviderStoreComposable();
 const menu = ref([
   { text: "consulter les trips", value: "/getTrips" },
   { text: "Creer trips", value: "/addTrip" },

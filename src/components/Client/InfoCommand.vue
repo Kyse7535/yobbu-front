@@ -34,21 +34,32 @@
   </v-row>
 </template>
 <script setup>
-import { ref, computed, defineProps, onMounted } from "vue";
+import { watch } from "vue";
+import { ref, computed, defineProps, onMounted, defineEmits } from "vue";
 
+const emit = defineEmits(["price"]);
 const props = defineProps(["trip", "order"]);
 
 const price = computed(() => {
   let price = 0;
-  if (props.trip.weight_activated) {
+  if (props.trip && props.trip.weight_activated) {
     price +=
       props.order.poids_unite === "g"
         ? (props.order.weight * props.trip.price_per_kg) / 1000
         : props.order.weight * props.trip.price_per_kg;
   }
-  if (props.order.format) {
+  if (props.order && props.order.format) {
     price += props.order.format.price;
   }
+  if (props.order && props.order.mode_envoi) {
+    price += props.order.mode_envoi.price;
+  }
+  if (props.order && props.order.mode_livraison) {
+    price += props.order.mode_livraison.price;
+  }
+  return price;
 });
+
+watch(price, (val) => emit("price", val));
 </script>
 <style scoped></style>

@@ -48,7 +48,11 @@
           ></v-text-field>
           <v-radio-group v-model="poids_unite" inline>
             <v-radio label="grammes" id="poids-unite-1" value="g"></v-radio>
-            <v-radio label="kilogrammes" value="kg"></v-radio>
+            <v-radio
+              label="kilogrammes"
+              id="poids-unite-2"
+              value="kg"
+            ></v-radio>
           </v-radio-group>
         </div>
       </v-col>
@@ -63,6 +67,7 @@
             v-for="format in formats_trip"
             :key="format.id"
             :value="format"
+            :id="format.id"
             class="d-flex align-center"
           >
             <template #label>
@@ -97,9 +102,13 @@ const weight = ref(null);
 const format_selected = ref(null);
 const poids_unite = ref(null);
 const formats_trip = ref(null);
-const isCompleted = computed(
-  () => !!weight.value && !!format_selected.value && !!poids_unite.value
-);
+const isCompleted = computed(() => {
+  if (props.trip && props.trip.weight_activated) {
+    return !!weight.value && !!format_selected.value && !!poids_unite.value;
+  } else {
+    return !!format_selected.value;
+  }
+});
 
 watch(isCompleted, (val) => {
   emit("completed", {

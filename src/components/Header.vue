@@ -18,7 +18,7 @@
           <v-avatar color="info" class="text-white cursor-pointer">
             <v-icon icon="mdi-account-circle"></v-icon>
           </v-avatar>
-          <v-btn icon @click="goToPanier" v-if="!isProvider">
+          <v-btn id="panier" icon @click="goToPanier" v-if="!isProvider">
             <v-icon icon="mdi-cart-outline"></v-icon>
             ({{ store.getPanier().length }})
           </v-btn>

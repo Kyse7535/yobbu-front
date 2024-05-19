@@ -11,10 +11,11 @@
       <ul>
         <li
           v-for="trip in trips"
-          @click="getTripDetails(trip.id)"
           class="d-flex align-center justify-space-between w-50 cursor-pointer"
         >
-          <p>{{ trip.country_departure }} ---- > {{ trip.country_arrival }}</p>
+          <p @click="getTripDetails(trip.id)">
+            {{ trip.country_departure }} ---- > {{ trip.country_arrival }}
+          </p>
           <v-btn icon @click="delete_trip_dialog = true"
             ><v-icon icon="mdi-trash-can-outline"></v-icon
           ></v-btn>
@@ -56,7 +57,19 @@ function getTripDetails(trip_id) {
 }
 
 async function deleteTrip(trip_id) {
-  await providerStoreComposable.deleteTrip(trip_id);
+  let result = await providerStoreComposable.deleteTrip(trip_id);
+  if (result > -1) {
+    let _formats = providerStoreComposable.getFormats().map((f) => {
+      let index = f.trips.findIndex((t_id) => t_id === trip_id);
+      if (index > -1) {
+        f.trips.splice(index, 1);
+      }
+      return f;
+    });
+    for (let f of _formats) {
+      await providerStoreComposable.updateFormat(f);
+    }
+  }
   delete_trip_dialog.value = false;
   handlerMessage.displayMessage("votre trip a bien ete supprime");
 }

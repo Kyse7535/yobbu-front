@@ -1,0 +1,10 @@
+{
+  "id": "d3b07384-d9a7-43a8-9b25-dc36d05ed812",
+  "firstname": "Alice",
+  "lastname": "Johnson",
+  "email": "provider1@example.com",
+  "password": null,
+  "phone": "111-222-3333",
+  "activated_instance": null,
+  "siret": "12345678900011"
+}

@@ -18,7 +18,9 @@
 <script setup>
 import { defineEmits, defineProps, onBeforeMount, ref } from "vue";
 import useUtils from "@/composables/utils";
+import useProviderStoreComposable from "@/composables/providerStoreComposable";
 
+const providerStore = useProviderStoreComposable();
 const utils = useUtils();
 const props = defineProps(["format"]);
 const emit = defineEmits(["cancel-add-format"]);
@@ -31,7 +33,8 @@ const current_format = ref({
 function saveFormat() {
   if (current_format.value && !current_format.value.id) {
     current_format.value.id = utils.generateUUID();
-    current_format.value.trips = new Set();
+    current_format.value.trips = [];
+    current_format.value.provider_id = providerStore.getProviderInfo().id;
   }
   emit("add-format", current_format.value);
 }

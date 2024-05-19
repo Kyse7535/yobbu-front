@@ -1,0 +1,11 @@
+[
+  {
+    "links": [],
+    "id": "20cdc2ef-8db9-4a0a-81e5-a2ee34379e03",
+    "title": "toto",
+    "description": "toto",
+    "price": 50.0,
+    "trips": ["f4cd6602-a419-4104-bbdf-359cc0984bf0"],
+    "provider_id": "d3b07384-d9a7-43a8-9b25-dc36d05ed812"
+  }
+]

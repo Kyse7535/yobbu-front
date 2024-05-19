@@ -1,25 +1,64 @@
 <template>
-  <h1>Depart du colis</h1>
+  <h1>{{ props.isDepart ? "Depart du colis" : "Arrivee du colis" }}</h1>
   <v-row>
     <v-col cols="12" v-if="props.trip && props.trip.mode_transport">
-      <h2>Mode envoi du colis</h2>
-      <v-radio-group v-model="mode_envoi">
-        <v-radio v-for="mode in props.trip.mode_transport" :key="mode.id">
-          <template #label>
-            <div>
-              <h4>{{ mode.title }}</h4>
-              <p>{{ mode.description }}</p>
-              <p>{{ mode.price }}</p>
-            </div>
-          </template>
-        </v-radio>
-      </v-radio-group>
+      <h2>
+        {{ props.isDepart ? "Mode envoi du colis" : "Mode livraison du colis" }}
+      </h2>
+      <div v-if="props.isDepart">
+        <v-radio-group v-model="mode_transport">
+          <v-radio
+            v-for="mode in props.trip.mode_transport.filter(
+              (m) => m.step === 'DEPART'
+            )"
+            :key="mode.id"
+            :value="mode"
+            :id="mode.id"
+          >
+            <template #label>
+              <div>
+                <h4>{{ mode.title }}</h4>
+                <p>{{ mode.description }}</p>
+                <p>{{ mode.price }}</p>
+              </div>
+            </template>
+          </v-radio>
+        </v-radio-group>
+      </div>
+      <div v-else>
+        <v-radio-group v-model="mode_transport">
+          <v-radio
+            v-for="mode in props.trip.mode_transport.filter(
+              (m) => m.step === 'ARRIVEE'
+            )"
+            :key="mode.id"
+            :value="mode"
+            :id="mode.id"
+          >
+            <template #label>
+              <div>
+                <h4>{{ mode.title }}</h4>
+                <p>{{ mode.description }}</p>
+                <p>{{ mode.price }}</p>
+              </div>
+            </template>
+          </v-radio>
+        </v-radio-group>
+      </div>
     </v-col>
   </v-row>
-  <v-row v-if="mode_envoi && mode_envoi === 'mode-2'">
+  <v-row
+    v-if="
+      mode_transport &&
+      (mode_transport.id === 'df7f3b02-0328-4bdc-9a1d-fc58eb5ee7fc' ||
+        mode_transport.id === 'f21b1b15-8674-4892-9b7d-1b5fd1203f3b')
+    "
+  >
     <v-col cols="12">
-      <h2>Adresse d'expedition</h2>
-      <div id="adresse-expedition">
+      <h2>
+        {{ props.isDepart ? "Adresse d'expedition" : "Adresse Livraison" }}
+      </h2>
+      <div :id="props.isDepart ? 'adresse-expedition' : 'adresse_livraison'">
         <v-btn @click="adresse_dialog = true" v-if="!adresse"
           >Nouvelle adresse</v-btn
         >
@@ -35,7 +74,9 @@
                 <p>{{ props.trip && props.trip.country_departure }}</p>
               </div>
               <div>
-                <v-btn @click="modifyAdress">modifier</v-btn>
+                <v-btn @click="modifyAdress" id="btn-add-adresse"
+                  >modifier</v-btn
+                >
               </div>
             </div>
           </template>
@@ -50,16 +91,18 @@
                 inline
                 :rules="[() => !!civilite || 'This field is required']"
               >
-                <v-radio label="Monsieur" value="mr"></v-radio>
-                <v-radio label="Madame" value="mme"></v-radio>
+                <v-radio label="Monsieur" id="civilite-1" value="mr"></v-radio>
+                <v-radio label="Madame" id="civilite-2" value="mme"></v-radio>
               </v-radio-group>
               <v-text-field
                 v-model="nom"
                 label="Nom"
+                id="nom-adresse"
                 :rules="[() => !!nom || 'This field is required']"
               ></v-text-field>
               <v-text-field
                 v-model="prenom"
+                id="prenom-adresse"
                 :rules="[() => !!nom || 'This field is required']"
                 label="Prenom"
               ></v-text-field>
@@ -91,8 +134,9 @@
                 <v-btn
                   class="ms-auto bg-primary"
                   text="add"
-                  :disabled="!isCompleted"
+                  :disabled="!nom || !civilite || !prenom"
                   @click="addAddress"
+                  id="btn-validate-adresse"
                 ></v-btn>
               </v-col>
             </template>
@@ -108,14 +152,18 @@
         Afin de vous proposer un suivi de qualité sur votre colis, nous avons
         besoin de votre contact pour vous joindre. Merci de nous l’indiquer :
       </p>
-      <v-text-field label="email" id="email-envoi" v-model="email">
+      <v-text-field
+        label="email"
+        :id="props.isDepart ? 'email-envoi' : 'email_arrivee'"
+        v-model="email"
+      >
       </v-text-field>
     </v-col>
   </v-row>
 </template>
 <script setup>
 import { computed, ref, defineProps, watch, onBeforeMount } from "vue";
-const props = defineProps(["trip", "order"]);
+const props = defineProps(["trip", "order", "isDepart"]);
 const emit = defineEmits(["completed"]);
 const adresse_dialog = ref(false);
 const civilite = ref(null);
@@ -127,13 +175,20 @@ const ville = ref(null);
 const info_complementaire = ref(null);
 
 const email = ref(null);
-const isCompleted = computed(() =>
-  mode_envoi && mode_envoi.value === "mode-2"
-    ? !!civilite.value && !!nom.value && !!prenom.value && !!email.value
-    : mode_envoi.value === "mode-1" && !!email.value
-);
-const mode_envoi = ref(null);
+
+const mode_transport = ref({});
 const adresse = ref({});
+
+const isCompleted = computed(() =>
+  !!mode_transport.value &&
+  (mode_transport.value.id === "f21b1b15-8674-4892-9b7d-1b5fd1203f3b" ||
+    mode_transport.value.id === "df7f3b02-0328-4bdc-9a1d-fc58eb5ee7fc")
+    ? !!civilite.value && !!nom.value && !!prenom.value && !!email.value
+    : !!mode_transport.value &&
+      (mode_transport.value.id === "a12f1f76-490c-4d7a-ae3d-8627fc9a2db8" ||
+        mode_transport.value.id === "c789b14a-01da-465f-8966-b54a3d3a6b8e") &&
+      !!email.value
+);
 
 function addAddress() {
   adresse.value.nom = nom.value;
@@ -156,50 +211,92 @@ function modifyAdress() {
   adresse_dialog.value = true;
 }
 
-watch(isCompleted, (val) =>
-  emit("completed", {
-    completed: val,
-    mode_envoi: mode_envoi.value,
-    adresse_depart: adresse.value,
-    email_depart: email.value,
-  })
-);
+watch(isCompleted, (val) => {
+  if (props.isDepart) {
+    emit("completed", {
+      completed: val,
+      mode_envoi: mode_transport.value,
+      adresse_depart: adresse.value,
+      email_depart: email.value,
+    });
+  } else {
+    emit("completed", {
+      completed: val,
+      mode_livraison: mode_transport.value,
+      adresse_arrivee: adresse.value,
+      email_arrivee: email.value,
+    });
+  }
+});
 
-watch(mode_envoi, (val) => {
-  emit("completed", {
-    completed: isCompleted.value,
-    mode_envoi: val,
-    adresse_depart: adresse.value,
-    email_depart: email.value,
-  });
+watch(mode_transport, (val) => {
+  if (props.isDepart) {
+    emit("completed", {
+      completed: isCompleted.value,
+      mode_envoi: val,
+      adresse_depart: adresse.value,
+      email_depart: email.value,
+    });
+  } else {
+    emit("completed", {
+      completed: isCompleted.value,
+      mode_livraison: val,
+      adresse_arrivee: adresse.value,
+      email_arrivee: email.value,
+    });
+  }
 });
 watch(email, (val) => {
-  emit("completed", {
-    completed: isCompleted.value,
-    mode_envoi: mode_envoi.value,
-    adresse_depart: adresse.value,
-    email_depart: val,
-  });
+  if (props.isDepart) {
+    emit("completed", {
+      completed: isCompleted.value,
+      mode_envoi: mode_transport.value,
+      adresse_depart: adresse.value,
+      email_depart: val,
+    });
+  } else {
+    emit("completed", {
+      completed: isCompleted.value,
+      mode_livraison: mode_transport.value,
+      adresse_arrivee: adresse.value,
+      email_arrivee: val,
+    });
+  }
 });
 watch(
   adresse,
   () => {
-    emit("completed", {
-      completed: isCompleted.value,
-      mode_envoi: mode_envoi.value,
-      adresse_depart: adresse.value,
-      email_depart: email.value,
-    });
+    if (props.isDepart) {
+      emit("completed", {
+        completed: isCompleted.value,
+        mode_envoi: mode_transport.value,
+        adresse_depart: adresse.value,
+        email_depart: email.value,
+      });
+    } else {
+      emit("completed", {
+        completed: isCompleted.value,
+        mode_livraison: mode_transport.value,
+        adresse_arrivee: adresse.value,
+        email_arrivee: email.value,
+      });
+    }
   },
   { deep: true }
 );
 
 onBeforeMount(() => {
   if (props.order) {
-    mode_envoi.value = props.order.mode_envoi || "";
-    adresse.value = props.order.adresse_depart || {};
-    email.value = props.order.email_depart || "";
+    if (props.isDepart) {
+      mode_transport.value = props.order.mode_envoi || "";
+      adresse.value = props.order.adresse_depart || {};
+      email.value = props.order.email_depart || "";
+    } else {
+      mode_transport.value = props.order.mode_livraison || "";
+      adresse.value = props.order.adresse_arrivee || {};
+      email.value = props.order.email_arrivee || "";
+    }
   }
 });
 </script>
-<style></style>
+<style scoped></style>

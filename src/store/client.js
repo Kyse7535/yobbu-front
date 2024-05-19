@@ -80,11 +80,11 @@ export const useStore = defineStore("trip", {
       }
     },
 
-    async fetchProviderDetails(url) {
+    async fetchProviderDetails(provider_id) {
       try {
-        const result = await axios.get(url);
-        if (result.status === 200) {
-          this.provider = result.data && result.data[0];
+        const result = await axios.get(`${url}/api/v1/Provider/${provider_id}`);
+        if (result && result.status === 200) {
+          this.provider = result.data;
         }
       } catch (error) {
         handlerMessage.displayError(
@@ -96,10 +96,12 @@ export const useStore = defineStore("trip", {
         );
       }
     },
-    async fetchProviderTrips(url) {
+    async fetchProviderTrips(provider_id) {
       try {
-        const result = await axios.get(url);
-        if (result.status === 200) {
+        const result = await axios.get(`${url}/api/v1/${provider_id}/Trips`, {
+          headers,
+        });
+        if (result && result.status === 200) {
           this.provider_trips = result.data;
         }
       } catch (error) {
@@ -133,6 +135,9 @@ export const useStore = defineStore("trip", {
       if (result && result.status === 200) {
         this.format_trips = result.data;
       }
+    },
+    setPanier(panier) {
+      this.panier = panier;
     },
   },
 });

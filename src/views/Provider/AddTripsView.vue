@@ -50,7 +50,7 @@
         <v-text-field
           label="price per kg"
           v-model="trip.price_per_kg"
-          :disabled="!weight_activated"
+          :disabled="!trip.weight_activated"
         ></v-text-field>
         <ModeTransport
           :trip="utils.copyObject(trip)"
@@ -102,15 +102,19 @@ const trip = ref({
 
 const weight_activated = ref(false);
 
-function submit() {
+async function submit() {
   try {
-    validate_format.value = true;
-    const result = providerStore.addTrip(trip.value);
-    if (result > -1) {
+    let index = providerStore
+      .getTrips()
+      .findIndex((t) => t.id === trip.value.id);
+    if (index > -1) {
+      await providerStore.updateTrip(utils.copyObject(trip.value));
       handlerMessage.displayMessage("Trip modified successfully.");
     } else {
+      await providerStore.addTrip(utils.copyObject(trip.value));
       handlerMessage.displayMessage("Trip added successfully.");
     }
+    validate_format.value = true;
   } catch (error) {
     handlerMessage.displayError(
       (error &&
@@ -122,7 +126,7 @@ function submit() {
   }
 }
 
-onBeforeMount(() => {
+onBeforeMount(async () => {
   if (route.query.trip_id) {
     trip.value = providerStore
       .getTrips()
@@ -131,6 +135,7 @@ onBeforeMount(() => {
     trip.value.id = utils.generateUUID();
     trip.value.provider_id = providerStore.getProviderInfo().id;
   }
+  await providerStore.fetchAllFormats();
 });
 </script>
 <style scoped></style>

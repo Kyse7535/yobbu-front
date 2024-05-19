@@ -12,7 +12,10 @@
         <div v-if="formats && formats.length > 0">
           <li v-for="format in formats" class="d-flex justify-space-between">
             <v-checkbox
-              :model-value="format.trips && format.trips.has(props.trip_id)"
+              :model-value="
+                format.trips &&
+                format.trips.findIndex((t) => t === props.trip_id) > -1
+              "
               @click="handleUseFormat(format.id)"
               color="primary"
             ></v-checkbox>
@@ -54,12 +57,14 @@ import AddFormat from "@/components/Provider/AddFormat.vue";
 import useProviderStoreComposable from "@/composables/providerStoreComposable.js";
 import useHandlerMessage from "@/composables/HandlerMessage.js";
 import useUtils from "@/composables/utils.js";
+import { inject } from "vue";
 
 const utils = useUtils();
 const emit = defineEmits(["format-persisted"]);
 const props = defineProps(["trip_id", "validate_format"]);
 const handlerMessage = useHandlerMessage();
 const providerStore = useProviderStoreComposable();
+const route = inject("route");
 const header_format = ref([
   "selected",
   "title",
@@ -84,20 +89,22 @@ function handleUseFormat(format_id) {
     let index_format = formats.value.findIndex((f) => f.id === format_id);
     let format = { ...formats.value[index_format] };
     if (!format.trips) {
-      format.trips = new Set();
+      format.trips = [];
     }
-    if (format.trips.has(props.trip_id)) {
-      format.trips.delete(props.trip_id);
+    let index = format.trips.findIndex((t) => t === props.trip_id);
+    if (index > -1) {
+      format.trips.splice(index, 1);
     } else {
-      format.trips.add(props.trip_id);
+      format.trips.push(props.trip_id);
     }
     formats.value[index_format] = format;
   }
 }
-function deleteFormat(format_id) {
+
+async function deleteFormat(format_id) {
   if (format_id) {
     try {
-      providerStore.deleteFormat(format_id);
+      await providerStore.deleteFormat(format_id);
       delete_format_dialog.value = false;
     } catch (error) {
       handlerMessage.displayError(
@@ -120,16 +127,11 @@ function modifyFormat(format_id) {
   }
 }
 
-function saveFormat(format) {
+async function saveFormat(format) {
   if (format) {
     let new_format = { ...format };
     try {
-      let result = providerStore.addFormat(new_format);
-      if (result > -1) {
-        handlerMessage.displayMessage("Format modified successfully");
-      } else {
-        handlerMessage.displayMessage("Format saved successfully");
-      }
+      await providerStore.addFormat(new_format);
     } catch (error) {
       handlerMessage.displayError(
         (error &&
@@ -160,11 +162,19 @@ watch(
 
 watch(
   () => props.validate_format,
-  (val) => {
+  async (val) => {
     if (val) {
       try {
-        let _formats = [...formats.value];
-        providerStore.updateFormats(_formats);
+        let _formats = utils.copyObject(formats.value);
+        let index = -1;
+        for (let _format of _formats) {
+          index = _formats.findIndex((f) => f.id === _format.id);
+          if (index > -1) {
+            await providerStore.updateFormat(_format);
+          } else {
+            await providerStore.add(_format);
+          }
+        }
         emit("format-persisted");
       } catch (error) {
         handlerMessage.displayError(
@@ -179,23 +189,10 @@ watch(
   }
 );
 
-// onBeforeMount(() => {
-//   formats.value = copyFormats(providerStore.getFormats());
-// });
-
-// watch(
-//   formats,
-//   (newVal, oldVal) => {
-//     if (!utils.compareArrays(newVal, oldVal)) {
-//       formats.value = formats.value.map((f) => {
-//         if (f.trips.has(props.trip_id)) {
-//           f.trips.delete(props.trip_id);
-//         }
-//         return f;
-//       });
-//     }
-//   },
-//   { deep: true }
-// );
+onBeforeMount(async () => {
+  if (route.query.trip_id) {
+    await providerStore.fetchAllFormats();
+  }
+});
 </script>
 <style scoped></style>

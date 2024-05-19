@@ -40,6 +40,9 @@ onBeforeMount(async () => {
     country_arrival: "",
   });
   trips.value = store.getTrips();
+  if (localStorage.getItem("panier")) {
+    store.setPanier(JSON.parse(localStorage.getItem("panier")));
+  }
 });
 </script>
 <style></style>

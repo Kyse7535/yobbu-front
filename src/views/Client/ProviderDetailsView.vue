@@ -14,7 +14,9 @@
         fetch provider trips
       </p></v-col
     >
-    <v-col cols="12" v-if="loading_trips"> <h2>Loading trips ......</h2></v-col>
+    <v-col cols="12" v-if="provider && loading_trips">
+      <h2>Loading trips ......</h2></v-col
+    >
     <v-col cols="12" v-if="provider_trips">
       <TripList :trips="provider_trips" />
     </v-col>
@@ -27,26 +29,32 @@
 import { onMounted, ref, watch } from "vue";
 import useClientStoreComposable from "@/composables/clientStoreComposable";
 import TripList from "@/components/Client/TripList.vue";
+import { routeLocationKey } from "vue-router";
+import { inject } from "vue";
+import { onBeforeMount } from "vue";
 
 const store = useClientStoreComposable();
 
 const provider_trips = ref(null);
 const provider = ref(null);
 const loading_trips = ref(false);
+const route = inject("route");
 
 async function fetchProviderTrips() {
   loading_trips.value = true;
-  let link_to_provider_trips = provider.value.links.find(
-    (l) => l.rel === "trips"
-  );
-  await store.fetchProviderTrips(link_to_provider_trips.href);
+  await store.fetchProviderTrips(provider.value.id);
   provider_trips.value = [...store.getProviderTrips()];
   loading_trips.value = false;
 }
 
-onMounted(() => {
+onBeforeMount(async () => {
   if (store.getProviderDetails() && store.getProviderDetails().id) {
     provider.value = { ...store.getProviderDetails() };
+  } else if (route.query.provider_id) {
+    await store.fetchProviderDetails(route.query.provider_id);
+    provider.value = { ...store.getProviderDetails() };
+
+    alert(provider.value.id);
   }
 });
 </script>
