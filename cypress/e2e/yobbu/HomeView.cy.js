@@ -125,6 +125,7 @@ describe("Home page", () => {
     cy.get("#next-btn").click();
 
     //delete order
+    cy.wait(2000);
     cy.get("#panier").click();
     cy.get("#btn-delete-order-0").click();
     cy.get("#btn-confirm-delete-order").click();
