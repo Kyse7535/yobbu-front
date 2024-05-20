@@ -101,9 +101,6 @@ jobs:
       - name: Build
         run: npm run build
 
-      - shell: bash
-        run: ls dist
-
       - name: Cypress run
         uses: cypress-io/github-action@v6
         with:
