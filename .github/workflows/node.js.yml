@@ -142,13 +142,15 @@ jobs:
           spec: cypress/e2e/yobbu/*
 
   # Single deploy job since we're just deploying
-  # deploy:
-  #   environment:
-  #     name: github-pages
-  #     url: ${{ steps.deployment.outputs.page_url }}
-  #   runs-on: ubuntu-latest
-  #   steps:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
 
-  #     - name: Deploy to GitHub Pages
-  #       id: deployment
-  #       uses: actions/deploy-pages@v4
+      - name: build and deploy image on docker hub
+        run: |
+          docker build . -t yobbu-front
+          docker tag yobbu-front mwanamama/yobbu-front:1.0.0
+          docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+          docker push mwanamama/yobbu-front:1.0.0
