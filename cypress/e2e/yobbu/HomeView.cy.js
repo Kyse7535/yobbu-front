@@ -44,7 +44,7 @@ describe("Home page", () => {
   });
 
   it("should test correctly search Trips", () => {
-    cy.visit("http://localhost:5173");
+    cy.visit("/");
     cy.wait("@trips");
     cy.contains("HomeView");
     cy.contains("toto");
@@ -58,7 +58,7 @@ describe("Home page", () => {
   });
 
   it("Should test correctly access to trip details and provider details", () => {
-    cy.visit("http://localhost:5173");
+    cy.visit("/");
     cy.wait("@trips");
     cy.contains("HomeView");
     cy.contains("toto");
@@ -75,7 +75,7 @@ describe("Home page", () => {
   });
 
   it("should make an order correctly and modify order", () => {
-    cy.visit("http://localhost:5173");
+    cy.visit("/");
     cy.contains("toto");
     cy.get("#fab8b398-962c-4213-95b3-6e6d1cfb1954").click();
     cy.get("#btn-commander").click();
@@ -134,7 +134,7 @@ describe("Home page", () => {
   });
 
   it.skip("Should modify order", () => {
-    cy.visit("http://localhost:5173");
+    cy.visit("/");
     cy.get("#panier").click();
   });
 });
