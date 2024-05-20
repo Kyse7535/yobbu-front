@@ -4,9 +4,9 @@ export default defineConfig({
   e2e: {
     setupNodeEvents(on, config) {
       // implement node event listeners here
-      this.baseUrl: "http://localhost:5173",
-      this.supportFile: false,
-      this.reporter: "reporters/custom.js",
     },
+    baseUrl: "http://localhost:5173",
+    supportFile: false,
+    reporter: "reporters/custom.js",
   },
 });
