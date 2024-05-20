@@ -98,9 +98,6 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Install serve node js to preview app locally
-        run: npm i serve --save-dev
-
       - name: Build
         run: npm run build
 
@@ -128,6 +125,9 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: build
+
+      - name: Install serve node js to preview app locally
+        run: npm i serve --save-dev
 
       - name: Cypress run
         uses: cypress-io/github-action@v6
