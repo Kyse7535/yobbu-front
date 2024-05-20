@@ -7,6 +7,5 @@ export default defineConfig({
     },
     baseUrl: "http://localhost:5173",
     supportFile: false,
-    reporter: "reporters/custom.js",
   },
 });
