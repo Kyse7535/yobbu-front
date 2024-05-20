@@ -140,7 +140,6 @@ jobs:
           wait-on: "http://localhost:5173"
           wait-on-timeout: 120
           spec: cypress/e2e/yobbu/*
-          record: true
 
   # Single deploy job since we're just deploying
   # deploy:
