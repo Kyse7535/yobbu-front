@@ -6,7 +6,7 @@ export default defineConfig({
       // implement node event listeners here
       this.baseUrl: "http://localhost:5173"
       this.supportFile: false,
-      this.reporter: 'reporters/custom.js',
+      this.reporter: "reporters/custom.js",
     },
   },
 });
