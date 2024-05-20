@@ -132,7 +132,7 @@ jobs:
       - name: Cypress run
         uses: cypress-io/github-action@v6
         with:
-          start: serve -s dist -l 5173
+          start: npm start
           browser: chrome
 
   # Single deploy job since we're just deploying
