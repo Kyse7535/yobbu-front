@@ -129,11 +129,15 @@ jobs:
       - name: Install serve node js to preview app locally
         run: npm i serve --save-dev
 
-      - name: Cypress run
+      - name: Cypress run tests
         uses: cypress-io/github-action@v6
         with:
           start: npm start
           browser: chrome
+          wait-on: "http://localhost:5173"
+          wait-on-timeout: 120
+          spec: cypress/e2e/yobbu/*
+          record: true
 
   # Single deploy job since we're just deploying
   # deploy:
